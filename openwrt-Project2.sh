@@ -21,4 +21,4 @@ rm -rf ./package/diy-ziyong/theme
 # rm -rf ./package/diy-ziyong/adguardhome
 rm -rf ./feeds/packages/net/adguardhome
 rm -rf ./feeds/packages/net/smartdns
-rm -rf ./feeds/packages/net/mosdns
+#rm -rf ./feeds/packages/net/mosdns
