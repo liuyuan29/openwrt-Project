@@ -1,7 +1,7 @@
 log:
-  level: info
+  level: error
   file: ""
-  
+
 plugin:
   - tag: main_server
     type: server
@@ -9,30 +9,21 @@ plugin:
       entry:
         - _no_ecs
         - lazy_cache
-        - _prefer_ipv4
+#        - _prefer_ipv4
         - _single_flight
         - main_sequence
       server:
         - protocol: udp
-          addr: ":${{ uci -q get mosdns.mosdns.listen_port }}"
+          addr: "127.0.0.1:5335"
         - protocol: tcp
-          addr: ":${{ uci -q get mosdns.mosdns.listen_port }}"
+          addr: "127.0.0.1:5335"
 
   - tag: main_sequence
     type: sequence
     args:
       exec:
-        - query_is_hosts_domain
-        - query_is_redirect_domain
         - if:
-            - query_is_whitelist_domain
-          exec:
-            - forward_local
-            - _return
-        - if:
-            - query_is_blocklist_domain
             - query_is_ad_domain
-            - qtype65
           exec:
             - _block_with_nxdomain
             - _return
@@ -62,37 +53,14 @@ plugin:
     type: fast_forward
     args:
       upstream:
-        - addr: "127.0.0.1:6053"
-
-  - tag: query_is_whitelist_domain
-    type: query_matcher
-    args:
-      domain:
-        - "ext:./whitelist.txt"
-
-  - tag: query_is_blocklist_domain
-    type: query_matcher
-    args:
-      domain:
-        - "ext:/etc/mosdns/rule/blocklist.txt"
-
-  - tag: query_is_hosts_domain
-    type: hosts
-    args:
-      hosts:
-        - "ext:/etc/mosdns/rule/hosts.txt"
-
-  - tag: query_is_redirect_domain
-    type: redirect
-    args:
-      rule:
-        - "ext:/etc/mosdns/rule/redirect.txt"
+        - addr: "127.0.0.1:7053"
 
   - tag: forward_remote
     type: fast_forward
     args:
       upstream:
         - addr: "127.0.0.1:7053"
+          idle_timeout: 10
 
   - tag: lazy_cache
     type: cache
@@ -105,7 +73,6 @@ plugin:
     args:
       domain:
         - "ext:/usr/share/v2ray/geosite.dat:cn"
-        - "ext:/usr/share/v2ray/geosite.dat:apple-cn"
 
   - tag: query_is_non_local_domain
     type: query_matcher
@@ -124,8 +91,3 @@ plugin:
     args:
       domain:
         - "ext:./serverlist.txt"
-
-  - tag: qtype65
-    type: query_matcher
-    args:
-      qtype: [65]
