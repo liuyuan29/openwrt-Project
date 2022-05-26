@@ -53,7 +53,7 @@ plugin:
     type: fast_forward
     args:
       upstream:
-        - addr: "127.0.0.1:7053"
+        - addr: "127.0.0.1:6053"
 
   - tag: forward_remote
     type: fast_forward
