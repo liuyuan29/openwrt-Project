@@ -1,38 +1,39 @@
 
 config interface 'loopback'
-	option ifname 'lo'
 	option proto 'static'
 	option ipaddr '127.0.0.1'
 	option netmask '255.0.0.0'
+	option device 'lo'
 
 config globals 'globals'
 	option packet_steering '1'
 	option ula_prefix 'fd38:80dc:db74::/48'
 
 config interface 'lan'
-	option type 'bridge'
-	option ifname 'eth0'
 	option proto 'static'
 	option ipaddr '192.168.123.253'
 	option netmask '255.255.255.0'
 	option ip6assign '60'
+	option device 'br-lan'
+	option gateway '192.168.123.254'
+	list dns '127.0.0.1'
 
 config interface 'wan'
-	option ifname 'eth1'
 	option proto 'dhcp'
+	option device 'eth1'
 
 config interface 'wan6'
-	option ifname 'eth1'
 	option proto 'dhcpv6'
-
-config interface 'VPN'
-	option ifname 'ipsec0'
-	option proto 'static'
-	option ipaddr '10.10.10.1'
-	option netmask '255.255.255.0'
+	option device 'eth1'
 
 config interface 'IPV6'
 	option proto 'dhcpv6'
-	option ifname '@lan'
 	option reqaddress 'try'
 	option reqprefix 'auto'
+	option device '@lan'
+
+config device
+	option name 'br-lan'
+	option type 'bridge'
+	list ports 'eth0'
+
