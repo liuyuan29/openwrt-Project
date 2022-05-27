@@ -27,7 +27,7 @@ git clone -b luci https://github.com/xiaorouji/openwrt-passwall package/passwall
 # git clone https://github.com/xiaorouji/openwrt-passwall2.git package/passwall2
 # git clone https://github.com/dwj0/luci-app-sms-tool.git package/luci-app-sms-tool
 git clone -b master https://github.com/vernesong/OpenClash.git package/OpenClash
-git clone https://github.com/QiuSimons/openwrt-mos.git package/openwrt-mos
+svn co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-mosdns package/luci-app-mosdns
 
 svn co https://github.com/linkease/istore/trunk/luci/luci-app-store package/luci-app-store
 svn co https://github.com/linkease/istore-ui/trunk/app-store-ui package/app-store-ui
