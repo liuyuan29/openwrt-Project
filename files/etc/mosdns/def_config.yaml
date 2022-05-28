@@ -1,5 +1,5 @@
 log:
-  level: ${{ uci -q get mosdns.mosdns.loglv }}
+  level: ${{ uci -q get mosdns.mosdns.log_level }}
   file: ${{ uci -q get mosdns.mosdns.logfile }}
 
 plugin:
@@ -7,9 +7,6 @@ plugin:
     type: server
     args:
       entry:
-        - _no_ecs
-        - lazy_cache
-#        - _prefer_ipv4
         - _single_flight
         - main_sequence
       server:
@@ -32,10 +29,12 @@ plugin:
         - if:
             - query_is_blocklist_domain
             - query_is_ad_domain
-            - qtype65
           exec:
             - _block_with_nxdomain
             - _return
+
+        - mem_cache
+
         - if:
             - query_is_local_domain
             - "!_query_is_common"
@@ -45,6 +44,7 @@ plugin:
         - if:
             - query_is_non_local_domain
           exec:
+#            - _prefer_ipv4
             - forward_remote
             - _return
         - primary:
@@ -54,22 +54,43 @@ plugin:
               exec:
                 - _drop_response
           secondary:
+#            - _prefer_ipv4
             - forward_remote
-          fast_fallback: 150
+          fast_fallback: 200
           always_standby: true
+
+        - modify_ttl
+
+  - tag: mem_cache
+    type: cache
+    args:
+      size: ${{ uci -q get mosdns.mosdns.cache_size }}
+
+  - tag: modify_ttl
+    type: ttl
+    args:
+      minimal_ttl: ${{ uci -q get mosdns.mosdns.minimal_ttl }}
+      maximum_ttl: ${{ uci -q get mosdns.mosdns.maximum_ttl }}
 
   - tag: forward_local
     type: fast_forward
     args:
       upstream:
-        - addr: ${{ ./dns.sh 0 }}
-        - addr: ${{ ./dns.sh 1 }}
+        - addr: ${{ /usr/share/mosdns/dns.sh 0 }}
+        - addr: ${{ /usr/share/mosdns/dns.sh 1 }}
+
+  - tag: forward_remote
+    type: fast_forward
+    args:
+      upstream:
+        - addr: ${{ uci -q get mosdns.mosdns.remote_dns1 }}
+        - addr: ${{ uci -q get mosdns.mosdns.remote_dns2 }}
 
   - tag: query_is_whitelist_domain
     type: query_matcher
     args:
       domain:
-        - "ext:./whitelist.txt"
+        - "ext:/etc/mosdns/rule/whitelist.txt"
 
   - tag: query_is_blocklist_domain
     type: query_matcher
@@ -88,19 +109,6 @@ plugin:
     args:
       rule:
         - "ext:/etc/mosdns/rule/redirect.txt"
-
-  - tag: forward_remote
-    type: fast_forward
-    args:
-      upstream:
-        - addr: ${{ uci -q get mosdns.mosdns.remote_dns1 }}
-        - addr: ${{ uci -q get mosdns.mosdns.remote_dns2 }}
-
-  - tag: lazy_cache
-    type: cache
-    args:
-      size: 512000
-      lazy_cache_ttl: 259200
 
   - tag: query_is_local_domain
     type: query_matcher
@@ -125,9 +133,4 @@ plugin:
     type: query_matcher
     args:
       domain:
-        - "ext:./serverlist.txt"
-
-  - tag: qtype65
-    type: query_matcher
-    args:
-      qtype: [65]
+        - ${{ /usr/share/mosdns/ad_domain.sh }}
