@@ -183,7 +183,7 @@ jobs:
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
         keep_latest: 9
-        delete_tags: true
+        delete_tags: false
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         
