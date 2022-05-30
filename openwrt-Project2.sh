@@ -15,6 +15,7 @@
 # curl -fsSL  https://raw.githubusercontent.com/firkerword/KPR/main/logo.jpg > .package/luci-app-serverchan/root/usr/bin/serverchan/api/logo.jpg
 # Modify default IP
 sed -i 's/192.168.1.1/192.168.123.253/g' package/base-files/files/bin/config_generate
+sed -i 's/ImmortalWrt/JalaOp/g' package/base-files/files/etc/openwrt_release
 
 sed -i 's/bootstrap/argon/g' ./feeds/luci/modules/luci-base/root/etc/config/luci
 rm -rf ./package/diy-ziyong/theme
